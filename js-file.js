@@ -5,22 +5,37 @@ let operator = "";
 let secondNumber = "";
 let resultCalculated = false;
 
+let lastOperation = "";
+let lastNumber = ""
+
 const numbers = document.querySelectorAll("[data-number]");
 numbers.forEach((number) => {
     number.addEventListener("click", () => {
         const num = number.getAttribute('data-number');
+        if (resultCalculated && operator == "") {
+            reset();
+        }
         if (!resultCalculated && firstNumber.length < 16) {
             if (operator === "") {
+                
+                if (firstNumber === "0") {
+                    firstNumber = firstNumber.slice(1); 
+                }
                 firstNumber += num;
                 monitor.value = firstNumber;
             }
         }
         if (operator !== "" && secondNumber.length < 16) {
+           
+            if (secondNumber === "0") {
+                secondNumber = secondNumber.slice(1); 
+            }
             secondNumber += num;
             monitor.value = secondNumber;
         }
     });
 });
+
 
 const operators = document.querySelectorAll("[data-operator]");
 operators.forEach((operatorButton) => {
@@ -28,8 +43,12 @@ operators.forEach((operatorButton) => {
         const op = operatorButton.getAttribute('data-operator');
         if (firstNumber !== "" && operator !== "" && secondNumber !== "") {
             operate();
+            lastOperation = ""
+            lastNumber = ""
             operator = op;
         } else if (firstNumber !== "") {
+            lastOperation = ""
+            lastNumber = ""
             operator = op;
         }
     });
@@ -37,21 +56,33 @@ operators.forEach((operatorButton) => {
 
 const decimal = document.querySelector("#decimal");
 decimal.addEventListener('click', () => {
-    if (operator === '' && firstNumber !== "") {
-        if (!firstNumber.includes('.')) {
-            firstNumber += '.';
-            monitor.value = firstNumber;
-        }
-    } else {
-        if (!secondNumber.includes('.') && secondNumber !== "") {
-            secondNumber += '.';
-            monitor.value = secondNumber;
+    if (!resultCalculated) {
+        if (operator === '' && firstNumber !== "") {
+            if (!firstNumber.includes('.')) {
+                firstNumber += '.';
+                monitor.value = firstNumber;
+            }
+        } else {
+            if (!secondNumber.includes('.') && secondNumber !== "") {
+                secondNumber += '.';
+                monitor.value = secondNumber;
+            }
         }
     }
 });
 
 const equal = document.querySelector("#equal");
-equal.addEventListener("click", operate);
+equal.addEventListener("click", () => {
+    if (lastOperation !== "") {
+        secondNumber = lastNumber;
+        firstNumber = monitor.value;
+        operator = lastOperation;
+        operate();
+    }
+    else {
+        operate()
+    }
+});
 
 function operate() {
     let result = "";
@@ -94,12 +125,18 @@ function operate() {
     firstNumber = (parseFloat(result)).toString();
     monitor.value = firstNumber;
 
+    lastOperation = operator;
+    lastNumber = secondNumber
+
     operator = "";
     secondNumber = "";
     resultCalculated = true;
 }
 
+
 function reset() {
+    lastOperation = ""
+    lastNumber = ""
     resultCalculated = false;
     firstNumber = "";
     operator = "";
@@ -128,21 +165,35 @@ document.addEventListener('keydown', (event) => {
     const key = event.key;
     if (!isNaN(key)) {
         const num = key;
-        if (!resultCalculated) {
+        if (resultCalculated && operator == "") {
+            reset();
+        }
+        if (!resultCalculated && firstNumber.length < 16) {
             if (operator === "") {
+                if (firstNumber === "0") {
+                    firstNumber = firstNumber.slice(1); 
+                }
                 firstNumber += num;
                 monitor.value = firstNumber;
-            } else {
-                secondNumber += num;
-                monitor.value = secondNumber;
             }
+        }
+        if (operator !== "" && secondNumber.length < 16) {
+            if (secondNumber === "0") {
+                secondNumber = secondNumber.slice(1); 
+            }
+            secondNumber += num;
+            monitor.value = secondNumber;
         }
     } else if (['+', '-', '*', '/'].includes(key)) {
         if (firstNumber !== "" && operator !== "" && secondNumber !== "") {
             operate();
+            lastOperation = ""
+            lastNumber = ""
             operator = key;
         } else if (firstNumber !== "") {
             operator = key;
+            lastOperation = ""
+            lastNumber = ""
         }
     } else if (key === '.') {
         if (operator === '') {
@@ -157,7 +208,15 @@ document.addEventListener('keydown', (event) => {
             }
         }
     } else if (key === 'Enter') {
-        operate();
+        if (lastOperation !== "") {
+            secondNumber = lastNumber;
+            firstNumber = monitor.value;
+            operator = lastOperation;
+            operate();
+        }
+        else {
+            operate()
+        }
     } else if (key === 'Backspace') {
         if (!resultCalculated) {
             if (operator === "" && firstNumber !== "") {
