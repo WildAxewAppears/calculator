@@ -115,3 +115,20 @@ input::placeholder {
     border-bottom: 1px solid white;
     color: rgba(252, 252, 252, 0.849);
 }
+
+#screen {
+    font-size: 2rem; /* Dimensione di base */
+    transition: font-size 0.2s ease; /* Transizione fluida */
+  }
+  
+  #screen.small-text {
+    font-size: 1.5rem; /* Dimensione ridotta */
+  }
+  
+  #screen.smaller-text {
+    font-size: 1.2rem; /* Dimensione ancora più ridotta */
+  }
+  
+  #screen.smallest-text {
+    font-size: 1rem; /* Dimensione minima */
+  }
